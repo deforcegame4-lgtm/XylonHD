@@ -711,7 +711,7 @@
     // 1. Buka https://api.imgbb.com/
     // 2. Login/daftar (bisa pakai Google)
     // 3. Klik "Get API Key", copy key-nya, taruh di bawah ini.
-    IMGBB_API_KEY: "GANTI_DENGAN_API_KEY_IMGBB_KAMU"
+    IMGBB_API_KEY: "a4cc6806a9fc3bd30daf5dc3462aa8f6"
   };
 
   let selectedVersion = "v1";
@@ -744,7 +744,7 @@
   // langsung dari browser (beda sama Catbox yang blokir CORS).
   async function uploadFileToGetLink(file){
     if(!CONFIG.IMGBB_API_KEY || CONFIG.IMGBB_API_KEY.startsWith("GANTI_")){
-      throw new Error("a4cc6806a9fc3bd30daf5dc3462aa8f6");
+      throw new Error("API key ImgBB belum diisi di CONFIG.IMGBB_API_KEY.");
     }
     const form = new FormData();
     form.append("image", file);
