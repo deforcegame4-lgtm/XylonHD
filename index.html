@@ -696,10 +696,12 @@
   // KONFIGURASI API
   // ================================================================
   const CONFIG = {
+    // Tiap versi punya nama parameter query yang beda-beda (kebukti dari hasil tes kamu):
+    // V1 & V2 pakai "url", V3 pakai "image".
     HD_ENDPOINTS: {
-      v1: "https://api-faa.my.id/faa/superhd",
-      v2: "https://api-faa.my.id/faa/hdv2",
-      v3: "https://api-faa.my.id/faa/hdv3"
+      v1: { url: "https://api-faa.my.id/faa/superhd", param: "url" },
+      v2: { url: "https://api-faa.my.id/faa/hdv2", param: "url" },
+      v3: { url: "https://api-faa.my.id/faa/hdv3", param: "image" }
     },
     // Kalau API HD butuh API key, isi di sini. Kalau nggak butuh, biarin kosong.
     HD_API_KEY: "",
@@ -769,11 +771,14 @@
   // Kalau pas dicoba ternyata gagal atau link/hasilnya salah, kabarin aku bentuk
   // request & response yang bener (boleh screenshot Postman atau contoh curl-nya),
   // nanti tinggal aku sesuaikan bagian ini aja.
-  // CATATAN: sesuai hasil tes kamu, API ini pakai parameter query "image", bukan "url".
-  // Contoh yang berhasil: https://api-faa.my.id/faa/hdv3?image=<link_foto_encoded>
+  // CATATAN: nama parameter query beda per versi — V1/V2 pakai "url", V3 pakai "image".
+  // Contoh yang berhasil:
+  //   V1: https://api-faa.my.id/faa/superhd?url=<link_encoded>  -> JSON {status, creator, result}
+  //   V2: https://api-faa.my.id/faa/hdv2?url=<link_encoded>     -> JSON {status, creator, result}
+  //   V3: https://api-faa.my.id/faa/hdv3?image=<link_encoded>   -> foto langsung (binary)
   async function processHdFromLink(photoLink){
     const endpoint = CONFIG.HD_ENDPOINTS[selectedVersion];
-    const reqUrl = `${endpoint}?image=${encodeURIComponent(photoLink)}`;
+    const reqUrl = `${endpoint.url}?${endpoint.param}=${encodeURIComponent(photoLink)}`;
     const headers = {};
     if(CONFIG.HD_API_KEY) headers["Authorization"] = "Bearer " + CONFIG.HD_API_KEY;
 
