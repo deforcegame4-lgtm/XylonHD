@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XylonHD — Upgrade Foto Kamu Jadi HD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #08090B;
+    --surface: #111217;
+    --surface-2: #16171D;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.16);
+    --text: #F5F5F7;
+    --muted: #8A8A8F;
+    --glow-a: rgba(255,255,255,0.9);
+    --glow-b: rgba(255,255,255,0.9);
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  html,body{
+    height:100%;
+  }
+
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ambient glow orbs */
+  .orb{
+    position:fixed;
+    border-radius:50%;
+    filter: blur(90px);
+    opacity:0.28;
+    z-index:0;
+    pointer-events:none;
+  }
+  .orb-1{
+    width:480px; height:480px;
+    background: radial-gradient(circle, var(--glow-a), transparent 70%);
+    top:-160px; left:-120px;
+    animation: drift1 18s ease-in-out infinite;
+  }
+  .orb-2{
+    width:420px; height:420px;
+    background: radial-gradient(circle, var(--glow-b), transparent 70%);
+    bottom:-140px; right:-100px;
+    animation: drift2 22s ease-in-out infinite;
+  }
+  @keyframes drift1{
+    0%,100%{ transform: translate(0,0); }
+    50%{ transform: translate(40px, 30px); }
+  }
+  @keyframes drift2{
+    0%,100%{ transform: translate(0,0); }
+    50%{ transform: translate(-30px, -40px); }
+  }
+
+  /* film grain texture */
+  .grain{
+    position:fixed; inset:0;
+    z-index:1;
+    pointer-events:none;
+    opacity:0.035;
+    mix-blend-mode: overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  header{
+    position:relative;
+    z-index:2;
+    padding: 34px 20px 8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .brand{
+    display:inline-flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .brand-mark{
+    width:34px; height:34px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(120% 140% at 30% -20%, rgba(255,255,255,0.45), rgba(255,255,255,0) 55%),
+      rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.14);
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.3);
+    font-family:'Outfit', sans-serif;
+    font-weight:700;
+    font-size:0.95rem;
+    color:#fff;
+  }
+
+  .wordmark{
+    font-family:'Outfit', sans-serif;
+    font-weight:700;
+    font-size:1.4rem;
+    letter-spacing:-0.01em;
+  }
+  .wordmark span{ color: var(--muted); font-weight:500; }
+
+  main{
+    position:relative;
+    z-index:2;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding: 24px 20px 64px;
+    text-align:center;
+    animation: reveal .9s cubic-bezier(.2,.8,.25,1) both;
+  }
+  @keyframes reveal{
+    from{ opacity:0; transform: translateY(18px) scale(0.985); }
+    to{ opacity:1; transform: translateY(0) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    main{ animation:none; }
+    .cloud-icon, .orb{ animation:none; }
+  }
+
+  .headline{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:clamp(1.5rem, 3.4vw, 2.3rem);
+    letter-spacing:-0.02em;
+    margin-bottom:8px;
+  }
+
+  .sub{
+    color: var(--muted);
+    font-size:0.95rem;
+    margin-bottom:36px;
+  }
+
+  /* upload zone */
+  .upload-zone{
+    width:min(420px, 86vw);
+    aspect-ratio: 1 / 1;
+    max-height:380px;
+    border-radius:28px;
+    border:1.5px dashed var(--border-strong);
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+    transition: border-color .25s ease, transform .25s ease, background .25s ease;
+  }
+  .upload-zone:hover{
+    border-color: rgba(255,255,255,0.28);
+    transform: translateY(-2px);
+  }
+  .upload-zone.dragover{
+    border-color: var(--glow-b);
+    background: linear-gradient(180deg, #14161C, #191b22);
+  }
+  .upload-zone.has-image{
+    border-style: solid;
+    border-color: var(--border);
+  }
+
+  .cloud-icon{
+    width:64px; height:64px;
+    color: var(--muted);
+    animation: bob 3.2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform: translateY(0); }
+    50%{ transform: translateY(-6px); }
+  }
+
+  .upload-label{
+    font-size:0.95rem;
+    font-weight:500;
+    color: var(--muted);
+  }
+  .upload-hint{
+    font-size:0.75rem;
+    color: #55575F;
+  }
+
+  .preview-img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:none;
+  }
+  .upload-zone.has-image .preview-img{ display:block; }
+  .upload-zone.has-image .cloud-icon,
+  .upload-zone.has-image .upload-label,
+  .upload-zone.has-image .upload-hint{ display:none; }
+
+  .change-overlay{
+    position:absolute;
+    inset:0;
+    background: rgba(8,9,11,0.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    transition: opacity .25s ease;
+    font-size:0.85rem;
+    font-weight:500;
+    color:#fff;
+  }
+  .upload-zone.has-image:hover .change-overlay{ opacity:1; }
+
+  #file-input{ display:none; }
+
+  /* version switch (V1 / V2 / V3) — dengan thumb kaca yang geser & menetap */
+  .version-switch{
+    position:relative;
+    display:inline-flex;
+    gap:4px;
+    padding:4px;
+    margin-top:18px;
+    border-radius:999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+  }
+  .version-thumb{
+    position:absolute;
+    top:4px;
+    bottom:4px;
+    left:0;
+    width:0;
+    border-radius:999px;
+    background:
+      radial-gradient(120% 140% at 30% -20%, rgba(255,255,255,0.5), rgba(255,255,255,0) 55%),
+      rgba(255,255,255,0.14);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.6),
+      inset 0 -1px 2px rgba(0,0,0,0.3),
+      0 4px 12px rgba(0,0,0,0.35);
+    backdrop-filter: blur(8px) saturate(180%);
+    -webkit-backdrop-filter: blur(8px) saturate(180%);
+    transition: transform .4s cubic-bezier(.2,.9,.25,1.15), width .4s cubic-bezier(.2,.9,.25,1.15);
+    pointer-events:none;
+    z-index:0;
+  }
+  .version-switch button{
+    position:relative;
+    z-index:1;
+    border:none;
+    background:transparent;
+    color: var(--muted);
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:0.78rem;
+    letter-spacing:0.02em;
+    padding:8px 20px;
+    border-radius:999px;
+    cursor:pointer;
+    transition: color .25s ease;
+  }
+  .version-switch button.active{
+    color:#fff;
+  }
+
+  /* Up Now — Liquid Glass button (iOS-style) */
+  .up-now-wrap{
+    margin-top:32px;
+    perspective: 700px;
+  }
+  .up-now{
+    --mx: 50%;
+    --my: 50%;
+    padding: 16px 48px;
+    border-radius: 999px;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    letter-spacing:0.01em;
+    cursor:pointer;
+    position:relative;
+    isolation:isolate;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    min-width:156px;
+    justify-content:center;
+    transform-style: preserve-3d;
+    will-change: transform;
+
+    /* glass body: soft tint + refraction gradient */
+    background:
+      radial-gradient(120% 140% at 30% -20%, rgba(255,255,255,0.5), rgba(255,255,255,0) 55%),
+      linear-gradient(160deg, rgba(255,255,255,0.16), rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.09) 100%),
+      rgba(20,21,26,0.35);
+    backdrop-filter: blur(22px) saturate(190%) brightness(1.08);
+    -webkit-backdrop-filter: blur(22px) saturate(190%) brightness(1.08);
+
+    /* rim light: bright hairline on top, soft dark on bottom, faint outer edge */
+    box-shadow:
+      inset 0 1.5px 0 rgba(255,255,255,0.75),
+      inset 0 -1.5px 3px rgba(0,0,0,0.35),
+      inset 0 0 0 1px rgba(255,255,255,0.09),
+      0 1px 1px rgba(255,255,255,0.4),
+      0 14px 30px -8px rgba(0,0,0,0.55),
+      0 4px 10px rgba(0,0,0,0.3);
+
+    transition: box-shadow .25s ease, transform .35s cubic-bezier(.2,.9,.3,1.1);
+  }
+
+  /* soft top-of-glass sheen */
+  .up-now::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 42%, rgba(255,255,255,0) 60%);
+    opacity:0.5;
+    mix-blend-mode: overlay;
+    pointer-events:none;
+    z-index:1;
+  }
+
+  /* interactive specular highlight that tracks the cursor */
+  .up-now::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    background: radial-gradient(90px circle at var(--mx) var(--my), rgba(255,255,255,0.55), rgba(255,255,255,0) 65%);
+    opacity:0;
+    transition: opacity .35s ease;
+    pointer-events:none;
+    mix-blend-mode: overlay;
+    z-index:2;
+  }
+  .up-now:hover::after{ opacity:1; }
+
+  .up-now .spinner,
+  .up-now .btn-text{
+    position:relative;
+    z-index:3;
+  }
+
+  .up-now:active{
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.55),
+      inset 0 -1px 2px rgba(0,0,0,0.4),
+      inset 0 0 0 1px rgba(255,255,255,0.09),
+      0 6px 14px -4px rgba(0,0,0,0.5);
+  }
+  .up-now:disabled{
+    cursor:not-allowed;
+    opacity:0.75;
+  }
+  @media (hover:none){
+    .up-now:active{ transform: scale(0.97); }
+  }
+
+  .spinner{
+    width:16px; height:16px;
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,0.25);
+    border-top-color:#fff;
+    animation: spin .7s linear infinite;
+    display:none;
+  }
+  .up-now.loading .spinner{ display:inline-block; }
+  .up-now.loading .btn-text::after{ content: attr(data-loading-text); }
+  .up-now .btn-text::after{ content:"Up Now"; }
+  .up-now.done .btn-text::after{ content:"Selesai ✓"; }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  /* result panel */
+  .result-panel{
+    width:min(420px, 86vw);
+    margin-top:28px;
+    border-radius:24px;
+    border:1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    padding:18px;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    gap:16px;
+    animation: reveal .5s cubic-bezier(.2,.8,.25,1) both;
+  }
+  .result-panel.visible{ display:flex; }
+  .result-panel img{
+    width:100%;
+    border-radius:16px;
+    display:block;
+  }
+  .result-label{
+    font-size:0.8rem;
+    color: var(--muted);
+    align-self:flex-start;
+  }
+
+  .download-now{
+    width:100%;
+    padding:14px;
+    border-radius:999px;
+    border:none;
+    text-decoration:none;
+    color:#0A0A0B;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:0.92rem;
+    cursor:pointer;
+    text-align:center;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+
+    background:
+      radial-gradient(120% 140% at 30% -20%, rgba(255,255,255,0.9), rgba(255,255,255,0) 55%),
+      linear-gradient(160deg, #fff, #E4E4E7);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.9),
+      0 10px 24px -6px rgba(0,0,0,0.5);
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .download-now:hover{ transform: translateY(-1px); }
+  .download-now:active{ transform: translateY(0) scale(0.98); }
+
+  /* generic status line under the button (progress / error) */
+  .status-line{
+    margin-top:14px;
+    font-size:0.8rem;
+    color: var(--muted);
+    min-height:1em;
+  }
+  .status-line.error{ color:#fff; font-weight:500; }
+
+  /* error modal */
+  .modal-backdrop{
+    position:fixed; inset:0;
+    background: rgba(4,4,6,0.6);
+    backdrop-filter: blur(4px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:10;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity .28s ease;
+  }
+  .modal-backdrop.open{
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  .modal-card{
+    width:min(340px, 86vw);
+    background: var(--surface);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding: 32px 28px 26px;
+    text-align:center;
+    transform: scale(0.9) translateY(8px);
+    opacity:0;
+    transition: transform .28s cubic-bezier(.2,.9,.3,1.2), opacity .28s ease;
+  }
+  .modal-backdrop.open .modal-card{
+    transform: scale(1) translateY(0);
+    opacity:1;
+  }
+
+  .modal-icon{
+    width:44px; height:44px;
+    margin:0 auto 16px;
+    color: var(--text);
+  }
+
+  .modal-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:1.05rem;
+    margin-bottom:8px;
+  }
+  .modal-desc{
+    color: var(--muted);
+    font-size:0.85rem;
+    line-height:1.5;
+    margin-bottom:24px;
+  }
+
+  .modal-ok{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:none;
+    background:#fff;
+    color:#0A0A0B;
+    font-weight:600;
+    font-size:0.9rem;
+    cursor:pointer;
+    transition: opacity .15s ease, transform .15s ease;
+  }
+  .modal-ok:hover{ opacity:0.9; }
+  .modal-ok:active{ transform: scale(0.98); }
+
+  footer{
+    position:relative;
+    z-index:2;
+    text-align:center;
+    padding: 18px;
+    font-size:0.72rem;
+    color:#4B4D55;
+  }
+</style>
+</head>
+<body>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="grain"></div>
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">X</div>
+      <div class="wordmark">Xylon<span>HD</span></div>
+    </div>
+  </header>
+
+  <main>
+    <h1 class="headline">Bikin foto kamu jadi HD</h1>
+    <p class="sub">Masukin foto, pencet Up Now, tunggu prosesnya kelar.</p>
+
+    <div class="upload-zone" id="upload-zone" tabindex="0" role="button" aria-label="Upload foto">
+      <svg class="cloud-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 46C13.373 46 8 40.627 8 34C8 27.916 12.53 22.884 18.41 22.1C19.87 15.36 25.86 10.4 33 10.4C41.006 10.4 47.6 16.746 47.98 24.72C53.66 25.79 58 30.79 58 36.8C58 43.648 52.448 49.2 45.6 49.2H21" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M32 52V30" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M23 39L32 30L41 39" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="upload-label">Upload Foto</div>
+      <div class="upload-hint">Klik atau tarik file ke sini</div>
+      <img class="preview-img" id="preview-img" alt="Preview foto">
+      <div class="change-overlay">Ganti foto</div>
+    </div>
+
+    <div class="version-switch" id="version-switch" role="tablist" aria-label="Pilih versi HD">
+      <div class="version-thumb" id="version-thumb"></div>
+      <button type="button" class="active" data-version="v1">V1</button>
+      <button type="button" data-version="v2">V2</button>
+      <button type="button" data-version="v3">V3</button>
+    </div>
+
+    <input type="file" id="file-input" accept="image/*">
+
+    <div class="up-now-wrap">
+      <button class="up-now" id="up-now-btn" data-loading-text="Memproses...">
+        <span class="spinner"></span>
+        <span class="btn-text"></span>
+      </button>
+    </div>
+
+    <div class="status-line" id="status-line"></div>
+
+    <div class="result-panel" id="result-panel">
+      <div class="result-label">Hasil HD kamu</div>
+      <img id="result-img" alt="Hasil foto HD">
+      <a class="download-now" id="download-now" href="#" download target="_blank" rel="noopener">Download Now</a>
+    </div>
+  </main>
+
+  <footer>XylonHD — dibuat oleh Xylon</footer>
+
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card">
+      <svg class="modal-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="2.4"/>
+        <path d="M24 15V26" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+        <circle cx="24" cy="33" r="1.8" fill="currentColor"/>
+      </svg>
+      <div class="modal-title">Gagal! Foto Belum Dimasukin Nih</div>
+      <div class="modal-desc">Pilih atau tarik foto ke kolom upload dulu sebelum pencet Up Now.</div>
+      <button class="modal-ok" id="modal-ok-btn">Oke</button>
+    </div>
+  </div>
+
+<script>
+  const zone = document.getElementById('upload-zone');
+  const fileInput = document.getElementById('file-input');
+  const previewImg = document.getElementById('preview-img');
+  const upNowBtn = document.getElementById('up-now-btn');
+  const modalBackdrop = document.getElementById('modal-backdrop');
+  const modalOkBtn = document.getElementById('modal-ok-btn');
+  const statusLine = document.getElementById('status-line');
+  const resultPanel = document.getElementById('result-panel');
+  const resultImg = document.getElementById('result-img');
+  const downloadNowBtn = document.getElementById('download-now');
+
+  let selectedFile = null;
+
+  zone.addEventListener('click', () => fileInput.click());
+  zone.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' ') fileInput.click();
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    if(e.target.files && e.target.files[0]) handleFile(e.target.files[0]);
+  });
+
+  ['dragover','dragenter'].forEach(evt => {
+    zone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      zone.classList.add('dragover');
+    });
+  });
+  ['dragleave','dragend'].forEach(evt => {
+    zone.addEventListener(evt, () => zone.classList.remove('dragover'));
+  });
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    if(e.dataTransfer.files && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+
+  function handleFile(file){
+    if(!file.type.startsWith('image/')) return;
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      previewImg.src = ev.target.result;
+      zone.classList.add('has-image');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function openModal(){
+    modalBackdrop.classList.add('open');
+  }
+  function closeModal(){
+    modalBackdrop.classList.remove('open');
+  }
+  modalOkBtn.addEventListener('click', closeModal);
+  modalBackdrop.addEventListener('click', (e) => {
+    if(e.target === modalBackdrop) closeModal();
+  });
+
+  // --- Liquid Glass interaction: cursor-tracked highlight + subtle 3D tilt ---
+  let pressed = false;
+  function tiltFromEvent(e){
+    if(upNowBtn.disabled) return;
+    const rect = upNowBtn.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    upNowBtn.style.setProperty('--mx', x + 'px');
+    upNowBtn.style.setProperty('--my', y + 'px');
+    const midX = rect.width / 2, midY = rect.height / 2;
+    const rotateY = ((x - midX) / midX) * 9;
+    const rotateX = -((y - midY) / midY) * 9;
+    const scale = pressed ? 0.97 : 1.015;
+    upNowBtn.style.transform = `perspective(700px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${scale})`;
+  }
+  upNowBtn.addEventListener('mousemove', tiltFromEvent);
+  upNowBtn.addEventListener('mousedown', (e) => { pressed = true; tiltFromEvent(e); });
+  window.addEventListener('mouseup', () => { pressed = false; });
+  upNowBtn.addEventListener('mouseleave', () => {
+    upNowBtn.style.transform = '';
+  });
+
+  // ================================================================
+  // KONFIGURASI API
+  // ================================================================
+  const CONFIG = {
+    HD_ENDPOINTS: {
+      v1: "https://api-faa.my.id/faa/superhd",
+      v2: "https://api-faa.my.id/faa/hdv2",
+      v3: "https://api-faa.my.id/faa/hdv3"
+    },
+    // Kalau API-nya butuh API key, isi di sini. Kalau nggak butuh, biarin kosong.
+    HD_API_KEY: ""
+  };
+
+  let selectedVersion = "v1";
+  const versionSwitch = document.getElementById('version-switch');
+  const versionThumb = document.getElementById('version-thumb');
+
+  function moveThumbTo(btn){
+    const switchRect = versionSwitch.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    versionThumb.style.width = btnRect.width + 'px';
+    versionThumb.style.transform = `translateX(${btnRect.left - switchRect.left}px)`;
+  }
+
+  versionSwitch.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-version]');
+    if(!btn) return;
+    selectedVersion = btn.dataset.version;
+    versionSwitch.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+    moveThumbTo(btn);
+  });
+
+  // posisikan thumb ke tombol aktif langsung saat render, lalu re-check setelah semua
+  // resource (termasuk font) kelar dimuat biar ukurannya presisi, dan saat resize.
+  moveThumbTo(versionSwitch.querySelector('button.active'));
+  window.addEventListener('load', () => moveThumbTo(versionSwitch.querySelector('button.active')));
+  window.addEventListener('resize', () => moveThumbTo(versionSwitch.querySelector('button.active')));
+
+  // Layanan buat ngubah foto lokal jadi LINK publik dulu (step "Foto -> Link Foto"),
+  // karena API HD kamu butuh link, bukan file. Pakai Catbox (gratis, tanpa key).
+  // Kalau kamu udah punya server upload sendiri, ganti fungsi ini biar manggil
+  // endpoint upload kamu sendiri dan return link-nya.
+  async function uploadFileToGetLink(file){
+    const form = new FormData();
+    form.append("reqtype", "fileupload");
+    form.append("fileToUpload", file);
+    const res = await fetch("https://catbox.moe/user/api.php", {
+      method: "POST",
+      body: form
+    });
+    if(!res.ok) throw new Error("Gagal upload foto ke hosting link.");
+    const link = (await res.text()).trim();
+    if(!link.startsWith("http")) throw new Error("Hosting link tidak balikin URL yang valid.");
+    return link;
+  }
+
+  // Kirim link foto ke API HD kamu (V1/V2/V3), balikin link/blob foto HD hasil proses.
+  //
+  // CATATAN JUJUR: API kamu (api-faa.my.id) nggak punya dokumentasi publik yang
+  // bisa aku baca, dan domain-nya juga di luar akses sandbox aku buat dites langsung.
+  // Jadi di bawah ini aku pasang pola PALING UMUM dipakai API sejenis (GET dengan
+  // parameter "?url=", lalu responsnya dicoba dibaca sebagai JSON dulu, kalau
+  // ternyata bukan JSON berarti responsnya foto langsung/binary).
+  // Kalau pas dicoba ternyata gagal atau link/hasilnya salah, kabarin aku bentuk
+  // request & response yang bener (boleh screenshot Postman atau contoh curl-nya),
+  // nanti tinggal aku sesuaikan bagian ini aja.
+  // CATATAN: sesuai hasil tes kamu, API ini pakai parameter query "image", bukan "url".
+  // Contoh yang berhasil: https://api-faa.my.id/faa/hdv3?image=<link_foto_encoded>
+  async function processHdFromLink(photoLink){
+    const endpoint = CONFIG.HD_ENDPOINTS[selectedVersion];
+    const reqUrl = `${endpoint}?image=${encodeURIComponent(photoLink)}`;
+    const headers = {};
+    if(CONFIG.HD_API_KEY) headers["Authorization"] = "Bearer " + CONFIG.HD_API_KEY;
+
+    const res = await fetch(reqUrl, { method: "GET", headers });
+    if(!res.ok) throw new Error(`API HD (${selectedVersion.toUpperCase()}) gagal memproses foto.`);
+
+    const contentType = res.headers.get("content-type") || "";
+
+    if(contentType.includes("application/json")){
+      const data = await res.json();
+      const hdLink =
+        data.result || data.url || data.data?.url || data.hasil || data.output || data.image;
+      if(!hdLink) throw new Error("Response API HD tidak ketemu link hasilnya. Cek format JSON-nya.");
+      return hdLink;
+    }
+
+    if(contentType.startsWith("image/")){
+      const blob = await res.blob();
+      return URL.createObjectURL(blob);
+    }
+
+    // fallback: coba parse sebagai JSON manual kalau content-type-nya nggak jelas
+    const text = await res.text();
+    try{
+      const data = JSON.parse(text);
+      const hdLink =
+        data.result || data.url || data.data?.url || data.hasil || data.output || data.image;
+      if(hdLink) return hdLink;
+    }catch(_e){ /* bukan JSON, abaikan */ }
+
+    throw new Error("Format response API HD nggak dikenali, perlu disesuaikan manual.");
+  }
+  // ================================================================
+
+  function setStatus(text, isError){
+    statusLine.textContent = text || "";
+    statusLine.classList.toggle("error", !!isError);
+  }
+
+  upNowBtn.addEventListener('click', async () => {
+    if(!selectedFile){
+      openModal();
+      return;
+    }
+
+    resultPanel.classList.remove('visible');
+    upNowBtn.disabled = true;
+    upNowBtn.classList.add('loading');
+
+    try{
+      // 1) Foto -> Link Foto
+      upNowBtn.dataset.loadingText = "Mengupload...";
+      const photoLink = await uploadFileToGetLink(selectedFile);
+
+      // 2) Link Foto -> Proses HD -> Link Foto HD
+      upNowBtn.dataset.loadingText = "Memproses HD...";
+      const hdLink = await processHdFromLink(photoLink);
+
+      // 3) Tampilkan hasil + tombol Download Now
+      resultImg.src = hdLink;
+      downloadNowBtn.href = hdLink;
+      resultPanel.classList.add('visible');
+
+      upNowBtn.classList.remove('loading');
+      upNowBtn.classList.add('done');
+      setStatus("");
+      setTimeout(() => {
+        upNowBtn.classList.remove('done');
+        upNowBtn.disabled = false;
+      }, 1200);
+
+    }catch(err){
+      upNowBtn.classList.remove('loading');
+      upNowBtn.disabled = false;
+      setStatus(err.message || "Ada yang salah, coba lagi.", true);
+    }
+  });
+</script>
+
+</body>
+</html>
