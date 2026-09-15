@@ -701,8 +701,17 @@
       v2: "https://api-faa.my.id/faa/hdv2",
       v3: "https://api-faa.my.id/faa/hdv3"
     },
-    // Kalau API-nya butuh API key, isi di sini. Kalau nggak butuh, biarin kosong.
-    HD_API_KEY: ""
+    // Kalau API HD butuh API key, isi di sini. Kalau nggak butuh, biarin kosong.
+    HD_API_KEY: "",
+
+    // API key gratis buat ImgBB (dipakai buat ubah "Foto -> Link Foto").
+    // Catbox diganti ke ImgBB karena Catbox memblokir CORS dari browser (nggak bisa
+    // dipanggil langsung dari JavaScript web, cuma bisa dari server/aplikasi).
+    // Cara ambil key (gratis, ~1 menit):
+    // 1. Buka https://api.imgbb.com/
+    // 2. Login/daftar (bisa pakai Google)
+    // 3. Klik "Get API Key", copy key-nya, taruh di bawah ini.
+    IMGBB_API_KEY: "GANTI_DENGAN_API_KEY_IMGBB_KAMU"
   };
 
   let selectedVersion = "v1";
@@ -730,21 +739,23 @@
   window.addEventListener('load', () => moveThumbTo(versionSwitch.querySelector('button.active')));
   window.addEventListener('resize', () => moveThumbTo(versionSwitch.querySelector('button.active')));
 
-  // Layanan buat ngubah foto lokal jadi LINK publik dulu (step "Foto -> Link Foto"),
-  // karena API HD kamu butuh link, bukan file. Pakai Catbox (gratis, tanpa key).
-  // Kalau kamu udah punya server upload sendiri, ganti fungsi ini biar manggil
-  // endpoint upload kamu sendiri dan return link-nya.
+  // Ubah foto lokal jadi LINK publik dulu (step "Foto -> Link Foto") lewat ImgBB,
+  // karena API HD kamu butuh link, bukan file, dan ImgBB memang mendukung dipanggil
+  // langsung dari browser (beda sama Catbox yang blokir CORS).
   async function uploadFileToGetLink(file){
+    if(!CONFIG.IMGBB_API_KEY || CONFIG.IMGBB_API_KEY.startsWith("GANTI_")){
+      throw new Error("a4cc6806a9fc3bd30daf5dc3462aa8f6");
+    }
     const form = new FormData();
-    form.append("reqtype", "fileupload");
-    form.append("fileToUpload", file);
-    const res = await fetch("https://catbox.moe/user/api.php", {
+    form.append("image", file);
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${CONFIG.IMGBB_API_KEY}`, {
       method: "POST",
       body: form
     });
-    if(!res.ok) throw new Error("Gagal upload foto ke hosting link.");
-    const link = (await res.text()).trim();
-    if(!link.startsWith("http")) throw new Error("Hosting link tidak balikin URL yang valid.");
+    if(!res.ok) throw new Error("Gagal upload foto ke ImgBB.");
+    const data = await res.json();
+    const link = data?.data?.url;
+    if(!link) throw new Error("ImgBB tidak balikin link foto yang valid.");
     return link;
   }
 
