@@ -1,21 +1,14 @@
 // ================================================================
-// HAMBURGER MENU + DRAWER (Dashboard / Credit / Donate / Information)
+// HAMBURGER MENU — drawer cuma buat navigasi.
+// Milih item di drawer akan mengganti "halaman" yang tampil di area
+// utama (main), lalu drawer otomatis tertutup dengan animasi smooth.
 // ================================================================
 (function(){
   const toggleBtn = document.getElementById('menu-toggle');
   const backdrop = document.getElementById('drawer-backdrop');
   const closeBtn = document.getElementById('drawer-close');
-  const backBtn = document.getElementById('drawer-back');
-  const titleEl = document.getElementById('drawer-title');
   const listEl = document.getElementById('drawer-list');
-  const details = document.querySelectorAll('.drawer-detail');
-
-  const LABELS = {
-    dashboard: 'Dashboard',
-    credit: 'Credit',
-    donate: 'Donate',
-    information: 'Information'
-  };
+  const views = document.querySelectorAll('.view');
 
   function openDrawer(){
     backdrop.classList.add('open');
@@ -27,22 +20,10 @@
     backdrop.classList.remove('open');
     toggleBtn.classList.remove('open');
     document.body.style.overflow = '';
-    // balik ke tampilan list menu pas ditutup, biar pas dibuka lagi mulai dari awal
-    setTimeout(showList, 450);
   }
 
-  function showList(){
-    details.forEach(d => { d.hidden = true; });
-    listEl.hidden = false;
-    backBtn.classList.remove('visible');
-    titleEl.textContent = 'Menu';
-  }
-
-  function showDetail(name){
-    listEl.hidden = true;
-    details.forEach(d => { d.hidden = (d.id !== `detail-${name}`); });
-    backBtn.classList.add('visible');
-    titleEl.textContent = LABELS[name] || 'Menu';
+  function showView(name){
+    views.forEach(v => { v.hidden = (v.id !== `view-${name}`); });
   }
 
   toggleBtn.addEventListener('click', () => {
@@ -56,18 +37,10 @@
     if(e.target === backdrop) closeDrawer();
   });
 
-  backBtn.addEventListener('click', showList);
-
   listEl.querySelectorAll('.drawer-item').forEach(btn => {
     btn.addEventListener('click', () => {
-      const panel = btn.dataset.panel;
-      if(panel === 'dashboard'){
-        // "Dashboard" = balik ke tampilan utama (upload foto + Up Now),
-        // yang emang udah ada di halaman, cukup tutup drawer-nya aja.
-        closeDrawer();
-        return;
-      }
-      showDetail(panel);
+      showView(btn.dataset.view);
+      closeDrawer();
     });
   });
 
