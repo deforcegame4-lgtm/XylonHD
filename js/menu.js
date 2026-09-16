@@ -59,7 +59,16 @@
   backBtn.addEventListener('click', showList);
 
   listEl.querySelectorAll('.drawer-item').forEach(btn => {
-    btn.addEventListener('click', () => showDetail(btn.dataset.panel));
+    btn.addEventListener('click', () => {
+      const panel = btn.dataset.panel;
+      if(panel === 'dashboard'){
+        // "Dashboard" = balik ke tampilan utama (upload foto + Up Now),
+        // yang emang udah ada di halaman, cukup tutup drawer-nya aja.
+        closeDrawer();
+        return;
+      }
+      showDetail(panel);
+    });
   });
 
   document.addEventListener('keydown', (e) => {
