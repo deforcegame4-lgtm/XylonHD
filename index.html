@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=3">
+<link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
 
@@ -29,39 +29,17 @@
       </div>
 
       <div class="drawer-header">
-        <button class="drawer-back" id="drawer-back" aria-label="Kembali">&larr;</button>
-        <div class="drawer-title" id="drawer-title">Menu</div>
+        <div class="drawer-title">Menu</div>
         <button class="drawer-close" id="drawer-close" aria-label="Tutup menu">&times;</button>
       </div>
 
       <div class="drawer-body">
         <nav class="drawer-list" id="drawer-list">
-          <button class="drawer-item" type="button" data-panel="dashboard">Dashboard <span class="chev">&#8596;</span></button>
-          <button class="drawer-item" type="button" data-panel="credit">Credit <span class="chev">&rsaquo;</span></button>
-          <button class="drawer-item" type="button" data-panel="donate">Donate <span class="chev">&rsaquo;</span></button>
-          <button class="drawer-item" type="button" data-panel="information">Information <span class="chev">&rsaquo;</span></button>
+          <button class="drawer-item" type="button" data-view="home">Dashboard <span class="chev">&#8596;</span></button>
+          <button class="drawer-item" type="button" data-view="credit">Credit <span class="chev">&rsaquo;</span></button>
+          <button class="drawer-item" type="button" data-view="donate">Donate <span class="chev">&rsaquo;</span></button>
+          <button class="drawer-item" type="button" data-view="information">Information <span class="chev">&rsaquo;</span></button>
         </nav>
-
-        <div class="drawer-detail credit-detail" id="detail-credit" hidden>
-          <div class="credit-avatar-wrap">
-            <img class="credit-avatar" src="https://iili.io/nnl153Q.jpg" alt="Foto profil Xylon">
-          </div>
-          <div class="credit-name">Xylon</div>
-          <div class="credit-role">Developer</div>
-          <div class="credit-quote">
-            <p>Aku mungkin belum sampai di tujuan, tetapi aku sudah melangkah lebih jauh dari titik awal.</p>
-          </div>
-        </div>
-
-        <div class="drawer-detail" id="detail-donate" hidden>
-          <h3>Donate</h3>
-          <p>Mau dukung pengembangan XylonHD? Link/metode donasi bakal ditaruh di sini.</p>
-        </div>
-
-        <div class="drawer-detail" id="detail-information" hidden>
-          <h3>Information</h3>
-          <p>XylonHD adalah tools buat ubah foto biasa jadi HD secara online — tinggal upload, pilih versi, pencet Up Now.</p>
-        </div>
       </div>
     </aside>
   </div>
@@ -74,43 +52,74 @@
   </header>
 
   <main>
-    <h1 class="headline">Bikin foto kamu jadi <span class="accent-text">HD</span></h1>
-    <p class="sub">Masukin foto, pencet Up Now, tunggu prosesnya kelar.</p>
+    <!-- ================= HALAMAN: DASHBOARD (default) ================= -->
+    <div class="view" id="view-home">
+      <h1 class="headline">Bikin foto kamu jadi <span class="accent-text">HD</span></h1>
+      <p class="sub">Masukin foto, pencet Up Now, tunggu prosesnya kelar.</p>
 
-    <div class="upload-zone" id="upload-zone" tabindex="0" role="button" aria-label="Upload foto">
-      <svg class="cloud-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 46C13.373 46 8 40.627 8 34C8 27.916 12.53 22.884 18.41 22.1C19.87 15.36 25.86 10.4 33 10.4C41.006 10.4 47.6 16.746 47.98 24.72C53.66 25.79 58 30.79 58 36.8C58 43.648 52.448 49.2 45.6 49.2H21" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M32 52V30" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M23 39L32 30L41 39" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <div class="upload-label">Upload Foto</div>
-      <div class="upload-hint">Klik atau tarik file ke sini</div>
-      <img class="preview-img" id="preview-img" alt="Preview foto">
-      <div class="change-overlay">Ganti foto</div>
+      <div class="upload-zone" id="upload-zone" tabindex="0" role="button" aria-label="Upload foto">
+        <svg class="cloud-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 46C13.373 46 8 40.627 8 34C8 27.916 12.53 22.884 18.41 22.1C19.87 15.36 25.86 10.4 33 10.4C41.006 10.4 47.6 16.746 47.98 24.72C53.66 25.79 58 30.79 58 36.8C58 43.648 52.448 49.2 45.6 49.2H21" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M32 52V30" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M23 39L32 30L41 39" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="upload-label">Upload Foto</div>
+        <div class="upload-hint">Klik atau tarik file ke sini</div>
+        <img class="preview-img" id="preview-img" alt="Preview foto">
+        <div class="change-overlay">Ganti foto</div>
+      </div>
+
+      <div class="version-switch" id="version-switch" role="tablist" aria-label="Pilih versi HD">
+        <div class="version-thumb" id="version-thumb"></div>
+        <button type="button" class="active" data-version="v1">V1</button>
+        <button type="button" data-version="v2">V2</button>
+        <button type="button" data-version="v3">V3</button>
+      </div>
+
+      <input type="file" id="file-input" accept="image/*">
+
+      <div class="up-now-wrap">
+        <button class="up-now" id="up-now-btn" data-loading-text="Memproses...">
+          <span class="spinner"></span>
+          <span class="btn-text"></span>
+        </button>
+      </div>
+
+      <div class="status-line" id="status-line"></div>
+
+      <div class="result-panel" id="result-panel">
+        <div class="result-label">Hasil HD kamu</div>
+        <img id="result-img" alt="Hasil foto HD">
+        <a class="download-now" id="download-now" href="#" download target="_blank" rel="noopener">Download Now</a>
+      </div>
     </div>
 
-    <div class="version-switch" id="version-switch" role="tablist" aria-label="Pilih versi HD">
-      <div class="version-thumb" id="version-thumb"></div>
-      <button type="button" class="active" data-version="v1">V1</button>
-      <button type="button" data-version="v2">V2</button>
-      <button type="button" data-version="v3">V3</button>
+    <!-- ================= HALAMAN: CREDIT ================= -->
+    <div class="view view-credit" id="view-credit" hidden>
+      <div class="credit-avatar-wrap">
+        <img class="credit-avatar" src="https://iili.io/nnl153Q.jpg" alt="Foto profil Xylon">
+      </div>
+      <div class="credit-name">Xylon</div>
+      <div class="credit-role">Developer</div>
+      <div class="credit-quote">
+        <p>Aku mungkin belum sampai di tujuan, tetapi aku sudah melangkah lebih jauh dari titik awal.</p>
+      </div>
     </div>
 
-    <input type="file" id="file-input" accept="image/*">
-
-    <div class="up-now-wrap">
-      <button class="up-now" id="up-now-btn" data-loading-text="Memproses...">
-        <span class="spinner"></span>
-        <span class="btn-text"></span>
-      </button>
+    <!-- ================= HALAMAN: DONATE ================= -->
+    <div class="view" id="view-donate" hidden>
+      <h1 class="headline">Donate</h1>
+      <div class="page-card">
+        <p>Mau dukung pengembangan XylonHD? Link/metode donasi bakal ditaruh di sini.</p>
+      </div>
     </div>
 
-    <div class="status-line" id="status-line"></div>
-
-    <div class="result-panel" id="result-panel">
-      <div class="result-label">Hasil HD kamu</div>
-      <img id="result-img" alt="Hasil foto HD">
-      <a class="download-now" id="download-now" href="#" download target="_blank" rel="noopener">Download Now</a>
+    <!-- ================= HALAMAN: INFORMATION ================= -->
+    <div class="view" id="view-information" hidden>
+      <h1 class="headline">Information</h1>
+      <div class="page-card">
+        <p>XylonHD adalah tools buat ubah foto biasa jadi HD secara online — tinggal upload, pilih versi, pencet Up Now.</p>
+      </div>
     </div>
   </main>
 
@@ -129,7 +138,7 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=3"></script>
-  <script src="js/menu.js?v=3"></script>
+  <script src="js/app.js?v=4"></script>
+  <script src="js/menu.js?v=4"></script>
 </body>
 </html>
