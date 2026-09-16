@@ -100,7 +100,7 @@ const CONFIG = {
   // 1. Buka https://api.imgbb.com/
   // 2. Login/daftar (bisa pakai Google)
   // 3. Klik "Get API Key", copy key-nya, taruh di bawah ini.
-  IMGBB_API_KEY: "GANTI_DENGAN_API_KEY_IMGBB_KAMU"
+  IMGBB_API_KEY: "a4cc6806a9fc3bd30daf5dc3462aa8f6"
 };
 
 let selectedVersion = "v1";
