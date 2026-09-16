@@ -17,6 +17,11 @@
 
 *{ box-sizing: border-box; margin:0; padding:0; }
 
+/* PENTING: pastikan atribut HTML "hidden" selalu bener-bener nyembunyiin elemen,
+   walaupun ada aturan display:flex/block lain yang menargetkan elemen yang sama
+   (tanpa ini, elemen kayak .credit-detail bakal tetep kelihatan padahal di-hidden). */
+[hidden]{ display: none !important; }
+
 html,body{
   height:100%;
 }
