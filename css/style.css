@@ -16,7 +16,23 @@
   --neon-gradient: linear-gradient(135deg, var(--neon-blue), var(--neon-purple) 55%, var(--neon-pink));
 }
 
-*{ box-sizing: border-box; margin:0; padding:0; }
+*{
+  box-sizing: border-box;
+  margin:0;
+  padding:0;
+  /* matiin kotak highlight biru bawaan browser mobile pas elemen di-tap
+     (biasanya kelihatan di Chrome Android saat nge-tap tombol/link) */
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a{
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+button:focus-visible, a:focus-visible{
+  outline: 2px solid rgba(255,255,255,0.5);
+  outline-offset: 2px;
+}
 
 /* PENTING: pastikan atribut HTML "hidden" selalu bener-bener nyembunyiin elemen,
    walaupun ada aturan display:flex/block lain yang menargetkan elemen yang sama
