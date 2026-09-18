@@ -127,6 +127,9 @@ versionSwitch.addEventListener('click', (e) => {
 moveThumbTo(versionSwitch.querySelector('button.active'));
 window.addEventListener('load', () => moveThumbTo(versionSwitch.querySelector('button.active')));
 window.addEventListener('resize', () => moveThumbTo(versionSwitch.querySelector('button.active')));
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(() => moveThumbTo(versionSwitch.querySelector('button.active')));
+}
 
 // Ubah foto lokal jadi LINK publik dulu (step "Foto -> Link Foto") lewat ImgBB,
 // karena API HD butuh link, bukan file, dan ImgBB memang mendukung dipanggil
