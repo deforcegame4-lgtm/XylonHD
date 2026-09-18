@@ -29,7 +29,10 @@
     });
   });
 
-  // posisikan thumb ke tombol aktif (Dashboard) begitu halaman siap & saat resize
+  // posisikan thumb ke tombol aktif (Dashboard) begitu halaman siap, saat resize,
+  // DAN begitu semua font kelar dimuat — soalnya kalau dihitung sebelum font Outfit
+  // selesai load, lebar teks masih pakai font cadangan (lebih sempit) sehingga
+  // kaca jadi nggak presisi begitu font aslinya masuk dan teks melebar.
   function syncThumb(){
     const active = taskbar.querySelector('.taskbar-item.active') || items[0];
     moveThumbTo(active);
@@ -37,4 +40,7 @@
   syncThumb();
   window.addEventListener('load', syncThumb);
   window.addEventListener('resize', syncThumb);
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(syncThumb);
+  }
 })();
