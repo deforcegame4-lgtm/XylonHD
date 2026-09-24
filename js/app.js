@@ -8,6 +8,10 @@ const statusLine = document.getElementById('status-line');
 const resultPanel = document.getElementById('result-panel');
 const resultImg = document.getElementById('result-img');
 const downloadNowBtn = document.getElementById('download-now');
+const hdProgress = document.getElementById('hd-progress');
+const hdProgressStatusText = document.getElementById('hd-progress-status-text');
+const hdProgressFill = document.getElementById('hd-progress-fill');
+const hdProgressBadge = document.getElementById('hd-progress-badge');
 
 let selectedFile = null;
 
@@ -199,6 +203,64 @@ function setStatus(text, isError){
   statusLine.classList.toggle("error", !!isError);
 }
 
+// ================================================================
+// PROGRESS BAR — "Menunggu Running" -> "Memproses ... %" -> selesai
+// CATATAN: api-faa.my.id itu satu kali request doang, nggak ngasih tau
+// progress asli, jadi persennya di sini disimulasiin (naik pelan-pelan,
+// nanggung di ~92% sambil nunggu API-nya beneran selesai, baru loncat
+// ke 100% pas hasilnya dapet). Begitu bot Node.js/Telegram yang ngasih
+// progress asli udah jadi, tinggal ganti bagian simulasi ini jadi baca
+// angka progress beneran dari situ.
+// ================================================================
+let progressTimer = null;
+let currentPercent = 0;
+
+function setProgressPercent(p){
+  currentPercent = Math.max(0, Math.min(100, p));
+  hdProgressFill.style.width = currentPercent + '%';
+  hdProgressBadge.style.left = currentPercent + '%';
+  hdProgressBadge.textContent = Math.round(currentPercent) + '%';
+}
+
+function showProgressWaiting(){
+  hdProgress.hidden = false;
+  hdProgress.classList.remove('state-running', 'state-done');
+  hdProgress.classList.add('state-waiting');
+  hdProgressStatusText.textContent = 'Menunggu Running';
+  setProgressPercent(0);
+}
+
+function showProgressRunning(){
+  hdProgress.classList.remove('state-waiting');
+  hdProgress.classList.add('state-running');
+  hdProgressStatusText.textContent = 'Memproses Foto untuk Di HD';
+  setProgressPercent(2);
+
+  clearInterval(progressTimer);
+  progressTimer = setInterval(() => {
+    // makin deket 92%, makin pelan nambahnya — biar kerasa natural
+    // dan nggak keburu penuh sebelum hasil aslinya beneran dapet.
+    const remaining = 92 - currentPercent;
+    const step = Math.max(0.4, remaining * 0.06);
+    setProgressPercent(currentPercent + step);
+  }, 180);
+}
+
+function finishProgress(){
+  clearInterval(progressTimer);
+  hdProgress.classList.remove('state-waiting', 'state-running');
+  hdProgress.classList.add('state-done');
+  hdProgressStatusText.textContent = 'Selesai!';
+  setProgressPercent(100);
+  setTimeout(() => { hdProgress.hidden = true; }, 900);
+}
+
+function stopProgress(){
+  clearInterval(progressTimer);
+  hdProgress.hidden = true;
+  hdProgress.classList.remove('state-waiting', 'state-running', 'state-done');
+}
+
 upNowBtn.addEventListener('click', async () => {
   if(!selectedFile){
     openModal();
@@ -208,6 +270,8 @@ upNowBtn.addEventListener('click', async () => {
   resultPanel.classList.remove('visible');
   upNowBtn.disabled = true;
   upNowBtn.classList.add('loading');
+  setStatus("");
+  showProgressWaiting();
 
   try{
     // 1) Foto -> Link Foto
@@ -216,22 +280,24 @@ upNowBtn.addEventListener('click', async () => {
 
     // 2) Link Foto -> Proses HD -> Link Foto HD
     upNowBtn.dataset.loadingText = "Memproses HD...";
+    showProgressRunning();
     const hdLink = await processHdFromLink(photoLink);
 
     // 3) Tampilkan hasil + tombol Download Now
+    finishProgress();
     resultImg.src = hdLink;
     downloadNowBtn.href = hdLink;
     resultPanel.classList.add('visible');
 
     upNowBtn.classList.remove('loading');
     upNowBtn.classList.add('done');
-    setStatus("");
     setTimeout(() => {
       upNowBtn.classList.remove('done');
       upNowBtn.disabled = false;
     }, 1200);
 
   }catch(err){
+    stopProgress();
     upNowBtn.classList.remove('loading');
     upNowBtn.disabled = false;
     setStatus(err.message || "Ada yang salah, coba lagi.", true);
