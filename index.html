@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=9">
+<link rel="stylesheet" href="css/style.css?v=10">
 </head>
 <body>
 
@@ -96,6 +96,17 @@
         </button>
       </div>
 
+      <div class="hd-progress" id="hd-progress" hidden>
+        <div class="hd-progress-status">
+          <span class="hd-progress-dot"></span>
+          <span id="hd-progress-status-text">Menunggu Running</span>
+        </div>
+        <div class="hd-progress-track">
+          <div class="hd-progress-fill" id="hd-progress-fill"></div>
+          <div class="hd-progress-badge" id="hd-progress-badge">0%</div>
+        </div>
+      </div>
+
       <div class="status-line" id="status-line"></div>
 
       <div class="result-panel" id="result-panel">
@@ -153,7 +164,7 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=6"></script>
-  <script src="js/taskbar.js?v=6"></script>
+  <script src="js/app.js?v=10"></script>
+  <script src="js/taskbar.js?v=10"></script>
 </body>
 </html>
