@@ -746,6 +746,124 @@ main{
 }
 .status-line.error{ color:#fff; font-weight:500; }
 
+/* ================================================================
+   PROGRESS BAR — status proses HD (Menunggu Running / Memproses...)
+   badge persen naik di atas track, posisinya ngikutin persentase.
+   ================================================================ */
+.hd-progress{
+  width:min(420px, 86vw);
+  margin-top:26px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+}
+
+.hd-progress-status{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-family:'Inter', sans-serif;
+  font-size:0.82rem;
+  font-weight:600;
+  color:#fff;
+  letter-spacing:0.01em;
+}
+.hd-progress-dot{
+  width:7px; height:7px;
+  border-radius:50%;
+  background: var(--neon-gradient);
+  box-shadow: 0 0 10px rgba(142,124,255,0.7);
+  animation: dot-pulse 1.3s ease-in-out infinite;
+}
+@keyframes dot-pulse{
+  0%,100%{ opacity:0.4; transform: scale(0.8); }
+  50%{ opacity:1; transform: scale(1.15); }
+}
+
+.hd-progress-track{
+  position:relative;
+  width:100%;
+  height:14px;
+  margin-top:20px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.45);
+}
+
+.hd-progress-fill{
+  position:absolute;
+  top:0; left:0; bottom:0;
+  width:12%;
+  border-radius:999px;
+  overflow:hidden;
+  background: var(--neon-gradient);
+  box-shadow:
+    0 0 18px rgba(142,124,255,0.6),
+    0 0 8px rgba(56,217,232,0.45);
+  transition: width .5s cubic-bezier(.2,.85,.25,1);
+}
+/* kilau yang jalan di atas fill, biar kerasa "aktif" bukan statis */
+.hd-progress-fill::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.65) 50%, transparent 70%);
+  background-size:220% 100%;
+  animation: hd-shimmer 1.5s linear infinite;
+}
+@keyframes hd-shimmer{
+  from{ background-position:220% 0; }
+  to{ background-position:-220% 0; }
+}
+
+/* badge persen — posisi horizontalnya (left%) diatur lewat JS,
+   jadi pas progress 50% dia bener-bener nangkring di tengah track */
+.hd-progress-badge{
+  position:absolute;
+  top:50%;
+  left:12%;
+  transform: translate(-50%, -50%);
+  min-width:40px;
+  padding:4px 9px;
+  border-radius:999px;
+  text-align:center;
+  font-family:'Outfit', sans-serif;
+  font-weight:700;
+  font-size:0.7rem;
+  color:#fff;
+  background:
+    radial-gradient(120% 140% at 30% -25%, rgba(255,255,255,0.65), rgba(255,255,255,0) 55%),
+    var(--neon-gradient);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    0 6px 16px -4px rgba(0,0,0,0.5),
+    0 0 10px rgba(142,124,255,0.5);
+  transition: left .5s cubic-bezier(.2,.85,.25,1);
+  white-space:nowrap;
+}
+
+/* state "menunggu running" — fill kecil & indeterminate, badge disembunyiin */
+.hd-progress.state-waiting .hd-progress-fill{
+  width:26%;
+  animation: hd-indeterminate 1.4s ease-in-out infinite;
+  opacity:0.55;
+}
+.hd-progress.state-waiting .hd-progress-badge{ opacity:0; }
+@keyframes hd-indeterminate{
+  0%{ transform: translateX(-10%); }
+  50%{ transform: translateX(160%); }
+  100%{ transform: translateX(-10%); }
+}
+
+.hd-progress.state-running .hd-progress-badge{ opacity:1; }
+
+.hd-progress.state-done .hd-progress-fill{ animation:none; }
+.hd-progress.state-done .hd-progress-fill::after{ animation:none; opacity:0; }
+
 /* error modal */
 .modal-backdrop{
   position:fixed; inset:0;
