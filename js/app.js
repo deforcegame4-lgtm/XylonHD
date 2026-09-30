@@ -97,6 +97,11 @@ const CONFIG = {
   // Kalau API HD butuh API key, isi di sini. Kalau nggak butuh, biarin kosong.
   HD_API_KEY: "",
 
+  // Alamat server bot XylonHD sendiri (V4) - hasil dari tunnel ngrok.
+  // Ganti kalau alamatnya berubah (misal kalau server/tunnel di-restart
+  // tanpa domain ngrok yang di-pin).
+  BOT_API_URL: "https://pretense-jawless-deuce.ngrok-free.dev",
+
   // API key gratis buat ImgBB (dipakai buat ubah "Foto -> Link Foto").
   // Catbox diganti ke ImgBB karena Catbox memblokir CORS dari browser (nggak bisa
   // dipanggil langsung dari JavaScript web, cuma bisa dari server/aplikasi).
@@ -261,6 +266,45 @@ function stopProgress(){
   hdProgress.classList.remove('state-waiting', 'state-running', 'state-done');
 }
 
+// ================================================================
+// V4 - proses lewat server bot XylonHD sendiri (bukan ImgBB+api-faa.my.id).
+// Foto dikirim LANGSUNG (file, bukan link) ke server sendiri, dia yang
+// urus upload+panggil AI (KIE.ai) di baliknya. Progress-nya ASLI, dibaca
+// dari server tiap detik lewat polling /api/status/:jobId.
+// ================================================================
+async function processViaBot(file){
+  const form = new FormData();
+  form.append('photo', file);
+
+  const res = await fetch(`${CONFIG.BOT_API_URL}/api/upscale`, {
+    method: 'POST',
+    // header ini WAJIB buat lewatin halaman peringatan bawaan ngrok versi
+    // gratis, kalau nggak ada, yang balik malah HTML bukan data JSON.
+    headers: { 'ngrok-skip-browser-warning': 'true' },
+    body: form
+  });
+  if(!res.ok) throw new Error('Server bot gagal nerima foto.');
+  const { jobId } = await res.json();
+
+  showProgressRunning();
+
+  while(true){
+    await new Promise((r) => setTimeout(r, 1000));
+    const statusRes = await fetch(`${CONFIG.BOT_API_URL}/api/status/${jobId}`, {
+      headers: { 'ngrok-skip-browser-warning': 'true' }
+    });
+    if(!statusRes.ok) throw new Error('Gagal cek status proses di server bot.');
+    const job = await statusRes.json();
+
+    // progress ASLI dari server, bukan simulasi
+    setProgressPercent(job.percent || 0);
+    hdProgressStatusText.textContent = 'Memproses Foto untuk Di HD';
+
+    if(job.status === 'done') return job.resultUrl;
+    if(job.status === 'error') throw new Error(job.error || 'Proses HD gagal di server bot.');
+  }
+}
+
 upNowBtn.addEventListener('click', async () => {
   if(!selectedFile){
     openModal();
@@ -274,16 +318,23 @@ upNowBtn.addEventListener('click', async () => {
   showProgressWaiting();
 
   try{
-    // 1) Foto -> Link Foto
-    upNowBtn.dataset.loadingText = "Mengupload...";
-    const photoLink = await uploadFileToGetLink(selectedFile);
+    let hdLink;
 
-    // 2) Link Foto -> Proses HD -> Link Foto HD
-    upNowBtn.dataset.loadingText = "Memproses HD...";
-    showProgressRunning();
-    const hdLink = await processHdFromLink(photoLink);
+    if(selectedVersion === 'v4'){
+      // V4: langsung ke server bot sendiri, foto dikirim sebagai file
+      upNowBtn.dataset.loadingText = "Mengupload...";
+      hdLink = await processViaBot(selectedFile);
+    } else {
+      // V1/V2/V3: alur lama (ImgBB buat dapetin link, lalu api-faa.my.id)
+      upNowBtn.dataset.loadingText = "Mengupload...";
+      const photoLink = await uploadFileToGetLink(selectedFile);
 
-    // 3) Tampilkan hasil + tombol Download Now
+      upNowBtn.dataset.loadingText = "Memproses HD...";
+      showProgressRunning();
+      hdLink = await processHdFromLink(photoLink);
+    }
+
+    // Tampilkan hasil + tombol Download Now
     finishProgress();
     resultImg.src = hdLink;
     downloadNowBtn.href = hdLink;
